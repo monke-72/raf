@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Raf.Data;
+using Raf.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,17 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddDbContext<RafDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddHttpClient<ITmdbService, TmdbService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.themoviedb.org/3/");
+});
+
+builder.Services.AddHttpClient<IRawgService, RawgService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.rawg.io/api/");
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Raf/1.0");
+});
 
 builder.Services.AddControllersWithViews();
 

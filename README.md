@@ -36,14 +36,22 @@ Varsayılan port `5432`'dir.
 > **Windows dili Türkçe ise:** Kurulum sihirbazındaki **Locale** seçeneğini `[Default locale]` yerine
 > `English, United States` yapın. Aksi hâlde `initdb` "non-ASCII characters" hatası verip veritabanını oluşturamaz.
 
-### 3. Bağlantı dizesini user-secrets ile ayarlayın
+### 3. Bağlantı dizesini ve API anahtarlarını user-secrets ile ayarlayın
 
 Şifreler ve API anahtarları depoya girmez. `appsettings.json` içindeki değerler bilerek boş bırakılmıştır.
 Gerçek değerler `dotnet user-secrets` ile yalnızca sizin bilgisayarınızda saklanır:
 
 ```bash
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=raf;Username=postgres;Password=SIFRENIZ" --project Raf
+dotnet user-secrets set "Tmdb:ApiKey" "TMDB_ANAHTARINIZ" --project Raf
+dotnet user-secrets set "Rawg:ApiKey" "RAWG_ANAHTARINIZ" --project Raf
 ```
+
+API anahtarları ücretsiz alınabilir:
+- TMDB: https://www.themoviedb.org/settings/api
+- RAWG: https://rawg.io/apidocs
+
+Anahtarlar girilmezse uygulama yine çalışır; yalnızca film ve oyun araması hata mesajı gösterir.
 
 ### 4. Araçları geri yükleyin ve veritabanını oluşturun
 
