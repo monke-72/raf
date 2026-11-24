@@ -1,0 +1,41 @@
+@model List<Raf.Models.Icerik>
+@{
+    var seciliTur = ViewData["SeciliTur"] as MedyaTuru?;
+    ViewData["Title"] = seciliTur?.CogulAd() ?? "Tüm İçerikler";
+}
+
+<h1 class="h3 mb-3">@ViewData["Title"]</h1>
+
+<ul class="nav nav-pills mb-4 gap-1">
+    <li class="nav-item">
+        <a class="nav-link @(seciliTur == null ? "active" : "")" asp-action="Index">Tümü</a>
+    </li>
+    @foreach (var tur in Enum.GetValues<MedyaTuru>())
+    {
+        <li class="nav-item">
+            <a class="nav-link @(seciliTur == tur ? "active" : "")" asp-action="Index" asp-route-tur="@tur">@tur.CogulAd()</a>
+        </li>
+    }
+</ul>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">Bu kategoride henüz içerik yok.</p>
+}
+else
+{
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+        @foreach (var icerik in Model)
+        {
+            <div class="col">
+                <a asp-action="Detay" asp-route-id="@icerik.Id" class="card h-100 text-decoration-none icerik-kart">
+                    <partial name="_Kapak" model="icerik" />
+                    <div class="card-body p-2">
+                        <h2 class="h6 card-title mb-1 text-body">@icerik.Baslik</h2>
+                        <small class="text-muted">@icerik.MedyaTuru.Ad() · @(icerik.CikisYili?.ToString() ?? "—")</small>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}

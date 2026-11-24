@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
@@ -24,7 +24,13 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
+                            <a class="nav-link" asp-area="" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Film">Filmler</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Oyun">Oyunlar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Album">Albümler</a>
                         </li>
                     </ul>
                 </div>
@@ -38,7 +44,8 @@
 
     <footer class="border-top py-3 text-muted small">
         <div class="container">
-            &copy; 2026 Raf &middot; Film, oyun ve müzik kütüphanesi
+            &copy; 2026 Raf &middot; Film, oyun ve müzik kütüphanesi &middot;
+            <a class="link-secondary" asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
         </div>
     </footer>
 

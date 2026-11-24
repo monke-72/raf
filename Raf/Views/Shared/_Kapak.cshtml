@@ -1,0 +1,15 @@
+@model Raf.Models.Icerik
+@{
+    var oran = Model.MedyaTuru == MedyaTuru.Album ? "kapak-kare" : "kapak-dikey";
+}
+
+@if (!string.IsNullOrEmpty(Model.GorselUrl))
+{
+    <img src="@Model.GorselUrl" alt="@Model.Baslik" class="kapak @oran" loading="lazy" />
+}
+else
+{
+    <div class="kapak @oran kapak-bos kapak-@Model.MedyaTuru.ToString().ToLower()">
+        <span>@Model.MedyaTuru.Ad()</span>
+    </div>
+}

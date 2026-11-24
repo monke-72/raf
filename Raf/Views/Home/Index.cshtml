@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Ana Sayfa";
 }
 
@@ -8,31 +8,32 @@
         İzlediğin filmleri, oynadığın oyunları ve dinlediğin albümleri tek bir rafta topla.
         Puanla, incele, listeler oluştur ve takip ettiklerinin neler izleyip dinlediğini gör.
     </p>
+    <a class="btn btn-primary btn-lg" asp-controller="Icerikler" asp-action="Index">Kütüphaneye göz at</a>
 </section>
 
 <div class="row g-3">
     <div class="col-12 col-md-4">
-        <div class="card h-100">
+        <a class="card h-100 text-decoration-none icerik-kart" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Film">
             <div class="card-body">
-                <h2 class="h5 card-title">Filmler</h2>
-                <p class="card-text text-muted">TMDB üzerinden film ara, kütüphanene ekle ve puanla.</p>
+                <h2 class="h5 card-title text-body">Filmler</h2>
+                <p class="card-text text-muted">İzlediğin filmleri kaydet, puanla ve incele.</p>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-12 col-md-4">
-        <div class="card h-100">
+        <a class="card h-100 text-decoration-none icerik-kart" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Oyun">
             <div class="card-body">
-                <h2 class="h5 card-title">Oyunlar</h2>
-                <p class="card-text text-muted">RAWG üzerinden oyun ara, oynadıklarını kaydet ve incele.</p>
+                <h2 class="h5 card-title text-body">Oyunlar</h2>
+                <p class="card-text text-muted">Oynadığın oyunları kaydet, puanla ve incele.</p>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-12 col-md-4">
-        <div class="card h-100">
+        <a class="card h-100 text-decoration-none icerik-kart" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Album">
             <div class="card-body">
-                <h2 class="h5 card-title">Albümler</h2>
-                <p class="card-text text-muted">Discogs üzerinden albüm ara, dinlediklerini listelere ekle.</p>
+                <h2 class="h5 card-title text-body">Albümler</h2>
+                <p class="card-text text-muted">Dinlediğin albümleri kaydet ve listelere ekle.</p>
             </div>
-        </div>
+        </a>
     </div>
 </div>

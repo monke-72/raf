@@ -17,6 +17,42 @@ html {
   text-align: end;
 }
 
+/* İçerik kapakları */
+.kapak {
+  width: 100%;
+  object-fit: cover;
+  border-radius: var(--bs-border-radius);
+}
+
+.kapak-dikey { aspect-ratio: 2 / 3; }
+.kapak-kare { aspect-ratio: 1 / 1; }
+
+.kapak-bos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: .05em;
+}
+
+.kapak-film { background: linear-gradient(135deg, #1d3557, #457b9d); }
+.kapak-oyun { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+.kapak-album { background: linear-gradient(135deg, #6a1b4d, #c9184a); }
+
+.icerik-kart .kapak {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.icerik-kart {
+  transition: transform .15s;
+}
+
+.icerik-kart:hover {
+  transform: translateY(-3px);
+}
+
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }

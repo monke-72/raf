@@ -1,0 +1,37 @@
+@model Raf.Models.Icerik
+@{
+    ViewData["Title"] = Model.Baslik;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">İçerikler</a></li>
+        <li class="breadcrumb-item">
+            <a asp-action="Index" asp-route-tur="@Model.MedyaTuru">@Model.MedyaTuru.CogulAd()</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Baslik</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-7 col-sm-5 col-md-4 col-lg-3 mx-auto mx-sm-0">
+        <partial name="_Kapak" model="Model" />
+    </div>
+    <div class="col-12 col-sm-7 col-md-8 col-lg-9">
+        <span class="badge text-bg-secondary mb-2">@Model.MedyaTuru.Ad()</span>
+        <h1 class="h2">@Model.Baslik</h1>
+        <p class="text-muted">@(Model.CikisYili?.ToString() ?? "Çıkış yılı bilinmiyor")</p>
+
+        @if (Model.IcerikTurleri.Count > 0)
+        {
+            <div class="mb-3">
+                @foreach (var it in Model.IcerikTurleri.OrderBy(x => x.Tur.Ad))
+                {
+                    <span class="badge rounded-pill text-bg-light border me-1">@it.Tur.Ad</span>
+                }
+            </div>
+        }
+
+        <p>@(Model.Aciklama ?? "Açıklama eklenmemiş.")</p>
+    </div>
+</div>
