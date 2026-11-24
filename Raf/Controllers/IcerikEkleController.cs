@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Raf.Data;
@@ -6,6 +7,7 @@ using Raf.Services;
 
 namespace Raf.Controllers;
 
+[Authorize(Roles = Roller.Yonetici)]
 public class IcerikEkleController : Controller
 {
     private readonly RafDbContext _context;

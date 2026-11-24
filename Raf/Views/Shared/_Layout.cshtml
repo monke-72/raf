@@ -33,7 +33,24 @@
                             <a class="nav-link" asp-area="" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Album">Albümler</a>
                         </li>
                     </ul>
-                    <a class="btn btn-outline-light btn-sm" asp-area="" asp-controller="IcerikEkle" asp-action="Index">İçerik Ekle</a>
+                    <div class="d-flex flex-wrap align-items-center gap-2 py-2 py-lg-0">
+                        @if (User.IsInRole(Roller.Yonetici))
+                        {
+                            <a class="btn btn-outline-light btn-sm" asp-area="" asp-controller="IcerikEkle" asp-action="Index">İçerik Ekle</a>
+                        }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="navbar-text small">@User.Identity.Name</span>
+                            <form asp-area="" asp-controller="Hesap" asp-action="Cikis" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-link nav-link px-0">Çıkış</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a class="nav-link px-0" asp-area="" asp-controller="Hesap" asp-action="Giris">Giriş</a>
+                            <a class="btn btn-primary btn-sm" asp-area="" asp-controller="Hesap" asp-action="Kayit">Kayıt Ol</a>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>

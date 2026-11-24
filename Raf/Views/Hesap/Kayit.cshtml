@@ -1,0 +1,48 @@
+@model Raf.Models.KayitModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+        <h1 class="h3 mb-4">Kayıt Ol</h1>
+
+        <form asp-action="Kayit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="KullaniciAdi" class="form-label"></label>
+                <input asp-for="KullaniciAdi" class="form-control" autocomplete="username" />
+                <span asp-validation-for="KullaniciAdi" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="email" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Sifre" class="form-label"></label>
+                <input asp-for="Sifre" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="Sifre" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SifreTekrar" class="form-label"></label>
+                <input asp-for="SifreTekrar" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="SifreTekrar" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Kayıt Ol</button>
+        </form>
+
+        <p class="mt-3 text-center">
+            Zaten hesabın var mı? <a asp-action="Giris">Giriş yap</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
