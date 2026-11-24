@@ -1,0 +1,79 @@
+@model List<Raf.Models.HariciIcerik>
+@{
+    ViewData["Title"] = "İçerik Ekle";
+    var sorgu = ViewData["Sorgu"] as string;
+    var seciliTur = (MedyaTuru)ViewData["Tur"]!;
+    var ekliler = (Dictionary<string, int>)ViewData["Ekliler"]!;
+    var kaynakAdi = seciliTur == MedyaTuru.Oyun ? "RAWG" : "TMDB";
+}
+
+<h1 class="h3 mb-3">İçerik Ekle</h1>
+<p class="text-muted">Filmler TMDB'den, oyunlar RAWG'den aranır. Seçtiğin içerik kütüphaneye kaydedilir.</p>
+
+<form method="get" asp-action="Index" class="row g-2 align-items-center mb-4">
+    <div class="col-12 col-md-auto">
+        <div class="btn-group w-100" role="group" aria-label="Medya türü">
+            <input type="radio" class="btn-check" name="tur" id="turFilm" value="Film" checked="@(seciliTur == MedyaTuru.Film)" />
+            <label class="btn btn-outline-primary" for="turFilm">Film</label>
+            <input type="radio" class="btn-check" name="tur" id="turOyun" value="Oyun" checked="@(seciliTur == MedyaTuru.Oyun)" />
+            <label class="btn btn-outline-primary" for="turOyun">Oyun</label>
+        </div>
+    </div>
+    <div class="col">
+        <input type="search" name="sorgu" value="@sorgu" class="form-control" placeholder="Ad ile ara..." required />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Ara</button>
+    </div>
+</form>
+
+@if (ViewData["Hata"] is string hata)
+{
+    <div class="alert alert-danger">@hata</div>
+}
+
+@if (!string.IsNullOrWhiteSpace(sorgu) && Model.Count == 0 && ViewData["Hata"] == null)
+{
+    <p class="text-muted">"@sorgu" için @kaynakAdi'de sonuç bulunamadı.</p>
+}
+
+@if (Model.Count > 0)
+{
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
+        @foreach (var sonuc in Model)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(sonuc.GorselUrl))
+                    {
+                        <img src="@sonuc.GorselUrl" alt="@sonuc.Baslik" class="kapak kapak-dikey card-img-top" loading="lazy" />
+                    }
+                    else
+                    {
+                        <div class="kapak kapak-dikey kapak-bos kapak-@seciliTur.ToString().ToLower()">
+                            <span>@seciliTur.Ad()</span>
+                        </div>
+                    }
+                    <div class="card-body p-2 d-flex flex-column">
+                        <h2 class="h6 card-title mb-1">@sonuc.Baslik</h2>
+                        <small class="text-muted mb-2">@(sonuc.CikisYili?.ToString() ?? "—")</small>
+
+                        @if (ekliler.TryGetValue(sonuc.HariciId, out var icerikId))
+                        {
+                            <a asp-controller="Icerikler" asp-action="Detay" asp-route-id="@icerikId"
+                               class="btn btn-sm btn-outline-secondary mt-auto">Kütüphanede</a>
+                        }
+                        else
+                        {
+                            <form method="post" asp-action="Ekle" class="mt-auto">
+                                <input type="hidden" name="tur" value="@seciliTur" />
+                                <input type="hidden" name="hariciId" value="@sonuc.HariciId" />
+                                <button type="submit" class="btn btn-sm btn-success w-100">Ekle</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

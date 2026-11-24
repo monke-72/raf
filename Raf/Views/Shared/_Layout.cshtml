@@ -33,12 +33,27 @@
                             <a class="nav-link" asp-area="" asp-controller="Icerikler" asp-action="Index" asp-route-tur="Album">Albümler</a>
                         </li>
                     </ul>
+                    <a class="btn btn-outline-light btn-sm" asp-area="" asp-controller="IcerikEkle" asp-action="Index">İçerik Ekle</a>
                 </div>
             </div>
         </nav>
     </header>
 
     <main role="main" class="container flex-grow-1 pb-4">
+        @if (TempData["Mesaj"] is string mesaj)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                @mesaj
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+        @if (TempData["Hata"] is string hata)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                @hata
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
         @RenderBody()
     </main>
 
