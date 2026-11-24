@@ -4,11 +4,17 @@
     var sorgu = ViewData["Sorgu"] as string;
     var seciliTur = (MedyaTuru)ViewData["Tur"]!;
     var ekliler = (Dictionary<string, int>)ViewData["Ekliler"]!;
-    var kaynakAdi = seciliTur == MedyaTuru.Oyun ? "RAWG" : "TMDB";
+    var kaynakAdi = seciliTur switch
+    {
+        MedyaTuru.Oyun => "RAWG",
+        MedyaTuru.Album => "Discogs",
+        _ => "TMDB"
+    };
+    var oran = seciliTur == MedyaTuru.Album ? "kapak-kare" : "kapak-dikey";
 }
 
 <h1 class="h3 mb-3">İçerik Ekle</h1>
-<p class="text-muted">Filmler TMDB'den, oyunlar RAWG'den aranır. Seçtiğin içerik kütüphaneye kaydedilir.</p>
+<p class="text-muted">Filmler TMDB'den, oyunlar RAWG'den, albümler Discogs'tan aranır. Seçtiğin içerik kütüphaneye kaydedilir.</p>
 
 <form method="get" asp-action="Index" class="row g-2 align-items-center mb-4">
     <div class="col-12 col-md-auto">
@@ -17,6 +23,8 @@
             <label class="btn btn-outline-primary" for="turFilm">Film</label>
             <input type="radio" class="btn-check" name="tur" id="turOyun" value="Oyun" checked="@(seciliTur == MedyaTuru.Oyun)" />
             <label class="btn btn-outline-primary" for="turOyun">Oyun</label>
+            <input type="radio" class="btn-check" name="tur" id="turAlbum" value="Album" checked="@(seciliTur == MedyaTuru.Album)" />
+            <label class="btn btn-outline-primary" for="turAlbum">Albüm</label>
         </div>
     </div>
     <div class="col">
@@ -46,11 +54,11 @@
                 <div class="card h-100">
                     @if (!string.IsNullOrEmpty(sonuc.GorselUrl))
                     {
-                        <img src="@sonuc.GorselUrl" alt="@sonuc.Baslik" class="kapak kapak-dikey card-img-top" loading="lazy" />
+                        <img src="@sonuc.GorselUrl" alt="@sonuc.Baslik" class="kapak @oran card-img-top" loading="lazy" />
                     }
                     else
                     {
-                        <div class="kapak kapak-dikey kapak-bos kapak-@seciliTur.ToString().ToLower()">
+                        <div class="kapak @oran kapak-bos kapak-@seciliTur.ToString().ToLower()">
                             <span>@seciliTur.Ad()</span>
                         </div>
                     }

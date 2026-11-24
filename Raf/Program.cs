@@ -32,6 +32,28 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Hesap/Giris";
     options.LogoutPath = "/Hesap/Cikis";
     options.AccessDeniedPath = "/Hesap/ErisimEngellendi";
+
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddHttpClient<ITmdbService, TmdbService>(client =>
@@ -45,13 +67,27 @@ builder.Services.AddHttpClient<IRawgService, RawgService>(client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd("Raf/1.0");
 });
 
+builder.Services.AddHttpClient<IDiscogsService, DiscogsService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.discogs.com/");
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("Raf/1.0");
+});
+
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 await YoneticiHesabi.OlusturAsync(app.Services);
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();

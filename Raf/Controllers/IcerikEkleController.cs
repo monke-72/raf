@@ -13,12 +13,14 @@ public class IcerikEkleController : Controller
     private readonly RafDbContext _context;
     private readonly ITmdbService _tmdb;
     private readonly IRawgService _rawg;
+    private readonly IDiscogsService _discogs;
 
-    public IcerikEkleController(RafDbContext context, ITmdbService tmdb, IRawgService rawg)
+    public IcerikEkleController(RafDbContext context, ITmdbService tmdb, IRawgService rawg, IDiscogsService discogs)
     {
         _context = context;
         _tmdb = tmdb;
         _rawg = rawg;
+        _discogs = discogs;
     }
 
     public async Task<IActionResult> Index(string? sorgu, MedyaTuru tur = MedyaTuru.Film)
@@ -32,18 +34,15 @@ public class IcerikEkleController : Controller
             return View(new List<HariciIcerik>());
         }
 
-        if (tur == MedyaTuru.Album)
-        {
-            ViewData["Hata"] = "Albüm araması henüz eklenmedi.";
-            return View(new List<HariciIcerik>());
-        }
-
         List<HariciIcerik> sonuclar;
         try
         {
-            sonuclar = tur == MedyaTuru.Oyun
-                ? await _rawg.AraAsync(sorgu)
-                : await _tmdb.AraAsync(sorgu);
+            sonuclar = tur switch
+            {
+                MedyaTuru.Oyun => await _rawg.AraAsync(sorgu),
+                MedyaTuru.Album => await _discogs.AraAsync(sorgu),
+                _ => await _tmdb.AraAsync(sorgu)
+            };
         }
         catch (Exception ex) when (ex is HttpRequestException or InvalidOperationException)
         {
@@ -65,7 +64,7 @@ public class IcerikEkleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Ekle(MedyaTuru tur, string hariciId)
     {
-        if (tur == MedyaTuru.Album || string.IsNullOrWhiteSpace(hariciId))
+        if (string.IsNullOrWhiteSpace(hariciId))
         {
             return BadRequest();
         }
@@ -84,9 +83,12 @@ public class IcerikEkleController : Controller
         HariciIcerik? veri;
         try
         {
-            veri = tur == MedyaTuru.Oyun
-                ? await _rawg.GetirAsync(hariciId)
-                : await _tmdb.GetirAsync(hariciId);
+            veri = tur switch
+            {
+                MedyaTuru.Oyun => await _rawg.GetirAsync(hariciId),
+                MedyaTuru.Album => await _discogs.GetirAsync(hariciId),
+                _ => await _tmdb.GetirAsync(hariciId)
+            };
         }
         catch (Exception ex) when (ex is HttpRequestException or InvalidOperationException)
         {
@@ -126,8 +128,12 @@ public class IcerikEkleController : Controller
         return RedirectToAction("Detay", "Icerikler", new { id = icerik.Id });
     }
 
-    private static HariciKaynak KaynakBul(MedyaTuru tur) =>
-        tur == MedyaTuru.Oyun ? HariciKaynak.Rawg : HariciKaynak.Tmdb;
+    private static HariciKaynak KaynakBul(MedyaTuru tur) => tur switch
+    {
+        MedyaTuru.Oyun => HariciKaynak.Rawg,
+        MedyaTuru.Album => HariciKaynak.Discogs,
+        _ => HariciKaynak.Tmdb
+    };
 
     private static string? Kisalt(string? metin, int uzunluk) =>
         metin == null || metin.Length <= uzunluk ? metin : metin[..uzunluk];

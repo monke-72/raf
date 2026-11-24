@@ -45,13 +45,15 @@ Gerçek değerler `dotnet user-secrets` ile yalnızca sizin bilgisayarınızda s
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=raf;Username=postgres;Password=SIFRENIZ" --project Raf
 dotnet user-secrets set "Tmdb:ApiKey" "TMDB_ANAHTARINIZ" --project Raf
 dotnet user-secrets set "Rawg:ApiKey" "RAWG_ANAHTARINIZ" --project Raf
+dotnet user-secrets set "Discogs:Token" "DISCOGS_TOKENINIZ" --project Raf
 ```
 
 API anahtarları ücretsiz alınabilir:
 - TMDB: https://www.themoviedb.org/settings/api
 - RAWG: https://rawg.io/apidocs
+- Discogs: https://www.discogs.com/settings/developers ("Generate new token")
 
-Anahtarlar girilmezse uygulama yine çalışır; yalnızca film ve oyun araması hata mesajı gösterir.
+Anahtarlar girilmezse uygulama yine çalışır; yalnızca ilgili arama hata mesajı gösterir.
 
 Yönetici hesabı da user-secrets ile tanımlanır. Uygulama ilk açılışta bu bilgilerle bir yönetici hesabı oluşturur:
 
@@ -77,15 +79,32 @@ dotnet ef database update --project Raf
 dotnet run --project Raf
 ```
 
-Konsolda yazan adresi (örn. `https://localhost:7xxx`) tarayıcıda açın.
+Konsolda yazan adresi (örn. `http://localhost:5275`) tarayıcıda açın.
+
+## Web API
+
+İncelemeler için tam CRUD destekli bir Web API bulunur. Uygulama geliştirme ortamında çalışırken
+`/swagger` adresinden test edilebilir.
+
+| Metot | Adres | Açıklama | Giriş gerekli |
+|---|---|---|---|
+| GET | `/api/incelemeler?icerikId=` | İncelemeleri listeler (isteğe bağlı içerik filtresi) | Hayır |
+| GET | `/api/incelemeler/{id}` | Tek inceleme getirir | Hayır |
+| POST | `/api/incelemeler` | Yeni inceleme ekler | Evet |
+| PUT | `/api/incelemeler/{id}` | Kendi incelemesini günceller | Evet |
+| DELETE | `/api/incelemeler/{id}` | İncelemeyi siler (sahibi, Moderatör veya Yönetici) | Evet |
+
+Giriş gerektiren işlemler için önce sitede giriş yapın; Swagger aynı tarayıcı oturumunu kullanır.
 
 ## Proje Yapısı
 
 ```
 Raf/
 ├── Controllers/   MVC denetleyicileri
-├── Data/          RafDbContext (EF Core)
-├── Models/        Varlık ve görünüm modelleri
+│   └── Api/       Web API denetleyicileri
+├── Data/          RafDbContext, seed verileri, migration'lar
+├── Models/        Varlık modelleri, DTO'lar ve form modelleri
+├── Services/      TMDB, RAWG ve Discogs servisleri
 ├── Views/         Razor görünümleri
 └── wwwroot/       CSS, JS, Bootstrap
 ```
