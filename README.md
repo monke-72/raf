@@ -53,6 +53,15 @@ API anahtarları ücretsiz alınabilir:
 
 Anahtarlar girilmezse uygulama yine çalışır; yalnızca film ve oyun araması hata mesajı gösterir.
 
+Yönetici hesabı da user-secrets ile tanımlanır. Uygulama ilk açılışta bu bilgilerle bir yönetici hesabı oluşturur:
+
+```bash
+dotnet user-secrets set "Yonetici:Email" "yonetici@ornek.com" --project Raf
+dotnet user-secrets set "Yonetici:Sifre" "GUCLU_BIR_SIFRE" --project Raf
+```
+
+Sitede kayıt olan herkes **Kullanıcı** rolüyle başlar. Roller: Yönetici, Moderatör, Kullanıcı.
+
 ### 4. Araçları geri yükleyin ve veritabanını oluşturun
 
 ```bash

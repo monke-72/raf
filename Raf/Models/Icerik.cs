@@ -34,4 +34,6 @@ public class Icerik
     public string? HariciId { get; set; }
 
     public ICollection<IcerikTuru> IcerikTurleri { get; set; } = new List<IcerikTuru>();
+
+    public ICollection<Inceleme> Incelemeler { get; set; } = new List<Inceleme>();
 }

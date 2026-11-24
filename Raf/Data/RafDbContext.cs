@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Raf.Models;
 
 namespace Raf.Data;
 
-public class RafDbContext : DbContext
+public class RafDbContext : IdentityDbContext<Kullanici>
 {
     public RafDbContext(DbContextOptions<RafDbContext> options) : base(options)
     {
@@ -12,18 +13,19 @@ public class RafDbContext : DbContext
     public DbSet<Icerik> Icerikler => Set<Icerik>();
     public DbSet<Tur> Turler => Set<Tur>();
     public DbSet<IcerikTuru> IcerikTurleri => Set<IcerikTuru>();
+    public DbSet<Inceleme> Incelemeler => Set<Inceleme>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Kullanici>().ToTable("Kullanicilar");
+
         modelBuilder.Entity<Icerik>(e =>
         {
-            // Enum'lar veritabanında sayı yerine okunabilir metin olarak saklanır.
             e.Property(i => i.MedyaTuru).HasConversion<string>().HasMaxLength(10);
             e.Property(i => i.HariciKaynak).HasConversion<string>().HasMaxLength(10);
 
-            // Aynı harici içerik iki kez eklenemez.
             e.HasIndex(i => new { i.HariciKaynak, i.HariciId }).IsUnique();
         });
 
@@ -42,6 +44,21 @@ public class RafDbContext : DbContext
             e.HasOne(it => it.Tur)
                 .WithMany(t => t.IcerikTurleri)
                 .HasForeignKey(it => it.TurId);
+        });
+
+        modelBuilder.Entity<Inceleme>(e =>
+        {
+            e.HasIndex(i => new { i.KullaniciId, i.IcerikId }).IsUnique();
+
+            e.HasOne(i => i.Kullanici)
+                .WithMany(k => k.Incelemeler)
+                .HasForeignKey(i => i.KullaniciId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(i => i.Icerik)
+                .WithMany(ic => ic.Incelemeler)
+                .HasForeignKey(i => i.IcerikId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         SeedVerileri.Ekle(modelBuilder);

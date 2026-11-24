@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Raf.Data;
+using Raf.Models;
 using Raf.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Gerçek bağlantı dizesi user-secrets'tan gelir, appsettings.json'da boş durur.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
@@ -14,6 +15,24 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 builder.Services.AddDbContext<RafDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddIdentity<Kullanici, IdentityRole>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.User.RequireUniqueEmail = true;
+        options.User.AllowedUserNameCharacters += "çğıöşüÇĞİÖŞÜ";
+    })
+    .AddEntityFrameworkStores<RafDbContext>()
+    .AddErrorDescriber<TurkceIdentityHatalari>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Hesap/Giris";
+    options.LogoutPath = "/Hesap/Cikis";
+    options.AccessDeniedPath = "/Hesap/ErisimEngellendi";
+});
 
 builder.Services.AddHttpClient<ITmdbService, TmdbService>(client =>
 {
@@ -30,17 +49,18 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+await YoneticiHesabi.OlusturAsync(app.Services);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -49,6 +69,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

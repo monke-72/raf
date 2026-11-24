@@ -1,13 +1,19 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Raf.Models;
 
 namespace Raf.Data;
 
-// HasData ile eklenen veriler migration'ın içine yazılır.
 public static class SeedVerileri
 {
     public static void Ekle(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<IdentityRole>().HasData(
+            RolOlustur("1", Roller.Yonetici),
+            RolOlustur("2", Roller.Moderator),
+            RolOlustur("3", Roller.Kullanici)
+        );
+
         modelBuilder.Entity<Tur>().HasData(
             new Tur { Id = 1, Ad = "Dram" },
             new Tur { Id = 2, Ad = "Bilim Kurgu" },
@@ -95,4 +101,12 @@ public static class SeedVerileri
             new IcerikTuru { IcerikId = 9, TurId = 11 }
         );
     }
+
+    private static IdentityRole RolOlustur(string id, string ad) => new()
+    {
+        Id = id,
+        Name = ad,
+        NormalizedName = ad.ToUpperInvariant(),
+        ConcurrencyStamp = id
+    };
 }
