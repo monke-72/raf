@@ -1,6 +1,5 @@
 namespace Raf.Models;
 
-// Icerik <-> Tur çoka-çok ilişkisinin ara tablosu.
 public class IcerikTuru
 {
     public int IcerikId { get; set; }

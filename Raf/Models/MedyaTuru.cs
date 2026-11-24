@@ -9,7 +9,6 @@ public enum MedyaTuru
 
 public static class MedyaTuruExtensions
 {
-    // Arayüzde gösterilecek Türkçe ad (enum adında "ü" kullanılamıyor).
     public static string Ad(this MedyaTuru tur) => tur switch
     {
         MedyaTuru.Film => "Film",
