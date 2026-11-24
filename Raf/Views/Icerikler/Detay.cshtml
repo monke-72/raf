@@ -1,37 +1,141 @@
-@model Raf.Models.Icerik
+@model Raf.Models.IcerikDetayModel
+@using System.Globalization
 @{
-    ViewData["Title"] = Model.Baslik;
+    var icerik = Model.Icerik;
+    var tr = new CultureInfo("tr-TR");
+    ViewData["Title"] = icerik.Baslik;
 }
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a asp-action="Index">İçerikler</a></li>
         <li class="breadcrumb-item">
-            <a asp-action="Index" asp-route-tur="@Model.MedyaTuru">@Model.MedyaTuru.CogulAd()</a>
+            <a asp-action="Index" asp-route-tur="@icerik.MedyaTuru">@icerik.MedyaTuru.CogulAd()</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">@Model.Baslik</li>
+        <li class="breadcrumb-item active" aria-current="page">@icerik.Baslik</li>
     </ol>
 </nav>
 
 <div class="row g-4">
     <div class="col-7 col-sm-5 col-md-4 col-lg-3 mx-auto mx-sm-0">
-        <partial name="_Kapak" model="Model" />
+        <partial name="_Kapak" model="icerik" />
     </div>
     <div class="col-12 col-sm-7 col-md-8 col-lg-9">
-        <span class="badge text-bg-secondary mb-2">@Model.MedyaTuru.Ad()</span>
-        <h1 class="h2">@Model.Baslik</h1>
-        <p class="text-muted">@(Model.CikisYili?.ToString() ?? "Çıkış yılı bilinmiyor")</p>
+        <span class="badge text-bg-secondary mb-2">@icerik.MedyaTuru.Ad()</span>
+        <h1 class="h2">@icerik.Baslik</h1>
+        <p class="text-muted">@(icerik.CikisYili?.ToString() ?? "Çıkış yılı bilinmiyor")</p>
 
-        @if (Model.IcerikTurleri.Count > 0)
+        <p class="fs-5">
+            @if (Model.OrtalamaPuan.HasValue)
+            {
+                <strong>@Model.OrtalamaPuan.Value.ToString("0.0", tr)</strong><span class="text-muted"> / 10</span>
+                <span class="text-muted small ms-1">(@Model.Incelemeler.Count inceleme)</span>
+            }
+            else
+            {
+                <span class="text-muted small">Henüz puan verilmemiş.</span>
+            }
+        </p>
+
+        @if (icerik.IcerikTurleri.Count > 0)
         {
             <div class="mb-3">
-                @foreach (var it in Model.IcerikTurleri.OrderBy(x => x.Tur.Ad))
+                @foreach (var it in icerik.IcerikTurleri.OrderBy(x => x.Tur.Ad))
                 {
                     <span class="badge rounded-pill text-bg-light border me-1">@it.Tur.Ad</span>
                 }
             </div>
         }
 
-        <p>@(Model.Aciklama ?? "Açıklama eklenmemiş.")</p>
+        <p>@(icerik.Aciklama ?? "Açıklama eklenmemiş.")</p>
     </div>
 </div>
+
+<hr class="my-4" />
+
+<div class="row g-4">
+    <div class="col-12 col-lg-5 order-lg-2">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h5 card-title">@(Model.KendiIncelemesiVar ? "İncelemeni düzenle" : "Puan ver ve incele")</h2>
+                    <form asp-controller="Incelemeler" asp-action="Kaydet" method="post">
+                        <input type="hidden" asp-for="Form.IcerikId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Form.Puan" class="form-label"></label>
+                            <select asp-for="Form.Puan" class="form-select">
+                                <option value="">Seç...</option>
+                                @for (var p = 10; p >= 1; p--)
+                                {
+                                    <option value="@p">@p</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Form.Puan" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Form.Metin" class="form-label"></label>
+                            <textarea asp-for="Form.Metin" rows="4" class="form-control"
+                                      placeholder="Ne düşündüğünü yaz (isteğe bağlı)"></textarea>
+                            <span asp-validation-for="Form.Metin" class="text-danger small"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-light border">
+                Puan vermek ve inceleme yazmak için
+                <a asp-controller="Hesap" asp-action="Giris" asp-route-returnUrl="@Context.Request.Path">giriş yap</a>.
+            </div>
+        }
+    </div>
+
+    <div class="col-12 col-lg-7 order-lg-1">
+        <h2 class="h5 mb-3">İncelemeler</h2>
+
+        @if (Model.Incelemeler.Count == 0)
+        {
+            <p class="text-muted">Henüz inceleme yok. İlk incelemeyi sen yaz!</p>
+        }
+
+        @foreach (var inceleme in Model.Incelemeler)
+        {
+            var silebilirMi = User.Identity?.Name == inceleme.Kullanici.UserName
+                              || User.IsInRole(Roller.Moderator)
+                              || User.IsInRole(Roller.Yonetici);
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>@inceleme.Kullanici.UserName</strong>
+                            <span class="badge text-bg-primary ms-1">@inceleme.Puan / 10</span>
+                        </div>
+                        <small class="text-muted">@inceleme.Tarih.ToLocalTime().ToString("d MMMM yyyy", tr)</small>
+                    </div>
+                    @if (!string.IsNullOrEmpty(inceleme.Metin))
+                    {
+                        <p class="card-text mt-2 mb-0" style="white-space: pre-line">@inceleme.Metin</p>
+                    }
+                    @if (silebilirMi)
+                    {
+                        <form asp-controller="Incelemeler" asp-action="Sil" asp-route-id="@inceleme.Id" method="post" class="mt-2"
+                              onsubmit="return confirm('Bu incelemeyi silmek istediğine emin misin?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

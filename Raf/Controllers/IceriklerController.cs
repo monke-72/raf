@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Raf.Data;
@@ -8,13 +9,14 @@ namespace Raf.Controllers;
 public class IceriklerController : Controller
 {
     private readonly RafDbContext _context;
+    private readonly UserManager<Kullanici> _userManager;
 
-    public IceriklerController(RafDbContext context)
+    public IceriklerController(RafDbContext context, UserManager<Kullanici> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
-    // GET: /Icerikler  veya  /Icerikler?tur=Film
     public async Task<IActionResult> Index(MedyaTuru? tur)
     {
         var sorgu = _context.Icerikler.AsNoTracking();
@@ -32,7 +34,6 @@ public class IceriklerController : Controller
         return View(icerikler);
     }
 
-    // GET: /Icerikler/Detay/5
     public async Task<IActionResult> Detay(int id)
     {
         var icerik = await _context.Icerikler
@@ -46,6 +47,30 @@ public class IceriklerController : Controller
             return NotFound();
         }
 
-        return View(icerik);
+        var incelemeler = await _context.Incelemeler
+            .AsNoTracking()
+            .Include(i => i.Kullanici)
+            .Where(i => i.IcerikId == id)
+            .OrderByDescending(i => i.Tarih)
+            .ToListAsync();
+
+        var model = new IcerikDetayModel
+        {
+            Icerik = icerik,
+            Incelemeler = incelemeler,
+            OrtalamaPuan = incelemeler.Count > 0 ? incelemeler.Average(i => i.Puan) : null,
+            Form = new IncelemeFormModel { IcerikId = id }
+        };
+
+        var kullaniciId = _userManager.GetUserId(User);
+        var kendiIncelemesi = incelemeler.FirstOrDefault(i => i.KullaniciId == kullaniciId);
+        if (kendiIncelemesi != null)
+        {
+            model.KendiIncelemesiVar = true;
+            model.Form.Puan = kendiIncelemesi.Puan;
+            model.Form.Metin = kendiIncelemesi.Metin;
+        }
+
+        return View(model);
     }
 }
