@@ -41,7 +41,7 @@ public class DiscogsService : IDiscogsService
         return cevap?.Results.Select(s => new HariciIcerik
         {
             HariciId = s.Id.ToString(),
-            Baslik = s.Title,
+            Baslik = Regex.Replace(s.Title, @"\s\(\d+\)(?=\s-\s|,)", "").Replace(" - ", " – "),
             CikisYili = HariciIcerik.YilAl(s.Year),
             GorselUrl = GercekGorselMi(s.CoverImage) ? s.CoverImage : null
         }).ToList() ?? new List<HariciIcerik>();
